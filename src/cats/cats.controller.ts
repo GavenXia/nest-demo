@@ -7,24 +7,39 @@ import {
   Header,
   Param,
   Body,
+  Redirect,
+  Query
 } from '@nestjs/common';
 import { CreateCatDto } from '../create-cat-dto';
+import { Cat } from './interfaces/cat.interface'
+import { CatsService } from './cats.service'
 @Controller('cats')
 export class CatsController {
+  constructor(private readonly catsService: CatsService) {}
+
   @Post()
   @HttpCode(200)
   @Header('Cache-Control', 'defineHeader')
-  createCat(@Body() createCatDto: CreateCatDto): string {
-
-    return `接受到的createCatDto的数据name:${createCatDto.name}&age:${createCatDto.age}`;
+  async create(@Body() createCatDto:CreateCatDto) {
+    this.catsService.create(createCatDto)
   }
 
   @Get()
-  findAllCats(@Req() request) {
-    return '这里是Controller：cats的findAllCats方法～';
+  async findAll(): Promise<Cat[]> {
+    return this.catsService.findAll();
   }
+
+  @Get('docs')
+  @Redirect('localhost:3000/cats', 302)
+  getDocs(@Query('version') version) {
+    if (version && version === '5') {
+      console.log(version)
+      return { url: 'localhost:3000/cats/12', statusCode: 302 };
+    }
+  }
+
   @Get(':id')
-  findOne(@Param() params) {
-    return `接受路由中的参数：${params.id}`;
+  findOne(@Param('id') id) {
+    return `接受路由中的参数：${id}` ;
   }
 }

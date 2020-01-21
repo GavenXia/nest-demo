@@ -14,15 +14,25 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const common_1 = require("@nestjs/common");
 const create_cat_dto_1 = require("../create-cat-dto");
+const cats_service_1 = require("./cats.service");
 let CatsController = class CatsController {
-    createCat(createCatDto) {
-        return `接受到的createCatDto的数据name:${createCatDto.name}&age:${createCatDto.age}`;
+    constructor(catsService) {
+        this.catsService = catsService;
     }
-    findAllCats(request) {
-        return '这里是Controller：cats的findAllCats方法～';
+    async create(createCatDto) {
+        this.catsService.create(createCatDto);
     }
-    findOne(params) {
-        return `接受路由中的参数：${params.id}`;
+    async findAll() {
+        return this.catsService.findAll();
+    }
+    getDocs(version) {
+        if (version && version === '5') {
+            console.log(version);
+            return { url: 'localhost:3000/cats/12', statusCode: 302 };
+        }
+    }
+    findOne(id) {
+        return `接受路由中的参数：${id}`;
     }
 };
 __decorate([
@@ -32,24 +42,32 @@ __decorate([
     __param(0, common_1.Body()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_cat_dto_1.CreateCatDto]),
-    __metadata("design:returntype", String)
-], CatsController.prototype, "createCat", null);
+    __metadata("design:returntype", Promise)
+], CatsController.prototype, "create", null);
 __decorate([
     common_1.Get(),
-    __param(0, common_1.Req()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], CatsController.prototype, "findAll", null);
+__decorate([
+    common_1.Get('docs'),
+    common_1.Redirect('localhost:3000/cats', 302),
+    __param(0, common_1.Query('version')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
-], CatsController.prototype, "findAllCats", null);
+], CatsController.prototype, "getDocs", null);
 __decorate([
     common_1.Get(':id'),
-    __param(0, common_1.Param()),
+    __param(0, common_1.Param('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], CatsController.prototype, "findOne", null);
 CatsController = __decorate([
-    common_1.Controller('cats')
+    common_1.Controller('cats'),
+    __metadata("design:paramtypes", [cats_service_1.CatsService])
 ], CatsController);
 exports.CatsController = CatsController;
 //# sourceMappingURL=cats.controller.js.map
